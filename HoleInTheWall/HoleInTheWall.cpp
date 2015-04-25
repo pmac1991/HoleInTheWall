@@ -13,19 +13,20 @@
 #include <NuiImageCamera.h>
 #include <NuiSensor.h>
 
+#define width 640
+#define height 480
+
+// OpenGL Variables
+
+GLuint textureId;              // ID of the texture to contain Kinect RGB Data
+
+GLubyte data[width*height * 4];  // BGRA array containing the texture data
+
 // Kinect variables
 
 HANDLE rgbStream;              // The identifier of the Kinect's RGB Camera
 
 INuiSensor* sensor;            // The kinect sensor
-
-bool initKinect();
-
-int main(int argc, char argv[])
-{
-	initKinect();
-	return 0;
-}
 
 bool initKinect() {
 	// Get a working kinect sensor
@@ -44,3 +45,32 @@ bool initKinect() {
 		&rgbStream);
 	return sensor;
 }
+
+void getKinectData(GLubyte* dest) {
+	NUI_IMAGE_FRAME imageFrame;
+	NUI_LOCKED_RECT LockedRect;
+	if (sensor->NuiImageStreamGetNextFrame(rgbStream, 0, &imageFrame) < 0) return;
+	INuiFrameTexture* texture = imageFrame.pFrameTexture;
+	texture->LockRect(0, &LockedRect, NULL, 0);
+
+	if (LockedRect.Pitch != 0)
+	{
+		const BYTE* curr = (const BYTE*)LockedRect.pBits;
+		const BYTE* dataEnd = curr + (width*height) * 4;
+
+		while (curr < dataEnd) {
+			*dest++ = *curr++;
+		}
+	}
+
+	texture->UnlockRect(0);
+	sensor->NuiImageStreamReleaseFrame(rgbStream, &imageFrame);
+}
+
+
+int main(int argc, char argv[])
+{
+	initKinect();
+	return 0;
+}
+
