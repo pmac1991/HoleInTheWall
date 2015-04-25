@@ -6,14 +6,12 @@
 #include <Windows.h>
 #include <Ole2.h>
 
-#include <NuiApi.h>
-#include <NuiImageCamera.h>
-#include <NuiSensor.h>
-
 #include "GL\glew.h"
 #include "GL\freeglut.h"
 
-
+#include <NuiApi.h>
+#include <NuiImageCamera.h>
+#include <NuiSensor.h>
 
 // Kinect variables
 
