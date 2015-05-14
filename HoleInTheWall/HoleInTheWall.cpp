@@ -37,6 +37,17 @@ struct jointScreenCo{
 
 jointScreenCo   m_Points[NUI_SKELETON_POSITION_COUNT];
 
+void output(int x, int y, float r, float g, float b, int font, char *string)
+{
+	glColor3f(r, g, b);
+	glRasterPos2f(x, y);
+	int len, i;
+	len = (int)strlen(string);
+	for (i = 0; i < len; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, string[i]);
+	}
+}
+
 bool initKinect() {
 	// Get a working kinect sensor
 	int numSensors;
@@ -202,13 +213,11 @@ void ProcessSkeleton(){
 
 }
 
-
-
 void draw() {
-	glViewport(0, 0, width, height);
+	/*glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, width, height, 0, 1, -1);
+	glOrtho(0, width, height, 0, 1, -1);*/
 
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
@@ -221,16 +230,29 @@ void draw() {
 	// macierz modelowania = macierz jednostkowa
 	glLoadIdentity();
 
-	ProcessSkeleton();
+	//ProcessSkeleton();
+
+	//glPushMatrix();
+	//	glBegin(GL_TRIANGLES);
+	//		glVertex3f(0,0,0);
+	//		glVertex3f(0, 1, 0);
+	//		glVertex3f(1,0,0);
+	//	glEnd();
+	//glPopMatrix();
 
 	glPushMatrix();
-	glBegin(GL_TRIANGLES);
-		glVertex3f(0,0,0);
-		glVertex3f(0, 1, 0);
-		glVertex3f(1,0,0);
-	glEnd();
+		glTranslatef(0.5, 0.1, 0.5);
+		glScalef(0.8f, 0.8f, 0.8f);
+		glColor3f(0.5f, 0.5f, 0.5f);
+		output(1, 1, 1, 0, 0, 1, "test");
+		//glutStrokeString(GLUT_STROKE_ROMAN, (unsigned char*)"aaa");
 	glPopMatrix();
 
+	glRasterPos2i(15, 20);
+	char text[10];
+	
+	sprintf_s(text, "%d", 5);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (unsigned char*)text);
 	// kolor krawêdzi szeœcianu
 
 	// skierowanie poleceñ do wykonania
