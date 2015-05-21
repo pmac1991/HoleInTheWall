@@ -22,6 +22,8 @@
 
 GLuint textureId;              // ID of the texture to contain Kinect RGB Data
 
+GLuint cameraPosZ, cameraPosX, cameraPosY;	//Camera position
+
 // Kinect variables
 
 HANDLE rgbStream;              // The identifier of the Kinect's RGB Camera
@@ -214,10 +216,10 @@ void ProcessSkeleton(){
 }
 
 void draw() {
-	/*glViewport(0, 0, width, height);
+	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, width, height, 0, 1, -1);*/
+	glOrtho(0, width, height, 0, 1, -1);
 
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
@@ -230,23 +232,24 @@ void draw() {
 	// macierz modelowania = macierz jednostkowa
 	glLoadIdentity();
 
-	//ProcessSkeleton();
-
-	//glPushMatrix();
-	//	glBegin(GL_TRIANGLES);
-	//		glVertex3f(0,0,0);
-	//		glVertex3f(0, 1, 0);
-	//		glVertex3f(1,0,0);
-	//	glEnd();
-	//glPopMatrix();
+	ProcessSkeleton();
 
 	glPushMatrix();
-		glTranslatef(0.5, 0.1, 0.5);
-		glScalef(0.8f, 0.8f, 0.8f);
-		glColor3f(0.5f, 0.5f, 0.5f);
-		output(1, 1, 1, 0, 0, 1, "test");
-		//glutStrokeString(GLUT_STROKE_ROMAN, (unsigned char*)"aaa");
+		glBegin(GL_TRIANGLES);
+			
+			glVertex3f(0,0,0);
+			glVertex3f(0,1, 0);
+			glVertex3f(1,0,0);
+		glEnd();
 	glPopMatrix();
+
+	//glPushMatrix();
+	//	glTranslatef(0.5, 0.1, 0.5);
+	//	glScalef(0.8f, 0.8f, 0.8f);
+	//	glColor3f(0.5f, 0.5f, 0.5f);
+	//	output(1, 1, 1, 0, 0, 1, "test");
+	//	glutStrokeString(GLUT_STROKE_ROMAN, (unsigned char*)"aaa");
+	//glPopMatrix();
 
 	glRasterPos2i(15, 20);
 	char text[10];
