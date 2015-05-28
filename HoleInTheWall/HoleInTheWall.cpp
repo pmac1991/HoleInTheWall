@@ -15,10 +15,33 @@
 
 #include <iostream>
 
+#include "Drawing.h"
+
 #define width 640
 #define height 480
 
+#define sceletonCorrX 90
+#define sceletonCorrY 80
+#define sceletonCorrZ 0
+
+#define sceletonScaleX 1.6
+#define sceletonScaleY 1.3
+#define sceletonScaleZ 0
+
+
+enum
+{
+	FULL_WINDOW, // aspekt obrazu - całe okno
+	ASPECT_1_1, // aspekt obrazu 1:1
+	EXIT // wyjście
+};
+
+int Aspect = FULL_WINDOW;
+
+
 // OpenGL Variables
+
+Wall* testWall;
 
 GLuint textureId;              // ID of the texture to contain Kinect RGB Data
 
@@ -98,6 +121,8 @@ void DrawBone(const NUI_SKELETON_DATA & skel, NUI_SKELETON_POSITION_INDEX joint0
 
 		//m_pRenderTarget->DrawLine(m_Points[joint0], m_Points[joint1], m_pBrushBoneTracked, g_TrackedBoneThickness);
 		glPushMatrix();
+		glTranslatef(sceletonCorrX, sceletonCorrY, 0);
+		glScalef(sceletonScaleX, sceletonScaleY, sceletonCorrZ);
 			glBegin(GL_LINES);
 				glVertex3f(temp0.positionX, temp0.positionY, 0);
 				glVertex3f(temp1.positionX, temp1.positionY, 0);
@@ -111,6 +136,8 @@ void DrawBone(const NUI_SKELETON_DATA & skel, NUI_SKELETON_POSITION_INDEX joint0
 		jointScreenCo temp0 = m_Points[joint0];
 		jointScreenCo temp1 = m_Points[joint1];
 		glPushMatrix();
+		glTranslatef(sceletonCorrX, sceletonCorrY, 0);
+		glScalef(sceletonScaleX, sceletonScaleY, sceletonCorrZ);
 			glBegin(GL_LINES);
 				glVertex3f(temp0.positionX, temp0.positionY, 0);
 				glVertex3f(temp1.positionX, temp1.positionY, 0);
@@ -216,7 +243,6 @@ void ProcessSkeleton(){
 }
 
 void draw() {
-	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, width, height, 0, 1, -1);
@@ -226,6 +252,8 @@ void draw() {
 	// czyszczenie bufora koloru
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	glClear(GL_DEPTH_BUFFER_BIT);
+
 	// wybór macierzy modelowania
 	glMatrixMode(GL_MODELVIEW);
 
@@ -234,22 +262,7 @@ void draw() {
 
 	ProcessSkeleton();
 
-	glPushMatrix();
-		glBegin(GL_TRIANGLES);
-			
-			glVertex3f(0,0,0);
-			glVertex3f(0,1, 0);
-			glVertex3f(1,0,0);
-		glEnd();
-	glPopMatrix();
-
-	//glPushMatrix();
-	//	glTranslatef(0.5, 0.1, 0.5);
-	//	glScalef(0.8f, 0.8f, 0.8f);
-	//	glColor3f(0.5f, 0.5f, 0.5f);
-	//	output(1, 1, 1, 0, 0, 1, "test");
-	//	glutStrokeString(GLUT_STROKE_ROMAN, (unsigned char*)"aaa");
-	//glPopMatrix();
+	testWall->Draw();
 
 	glRasterPos2i(15, 20);
 	char text[10];
@@ -265,12 +278,51 @@ void draw() {
 	glutSwapBuffers();
 }
 
+void Reshape(int w, int h)
+{
+	// obszar renderingu - całe okno
+	glViewport(0, 0, w, h);
+
+	// wybór macierzy rzutowania
+	glMatrixMode(GL_PROJECTION);
+
+	// macierz rzutowania = macierz jednostkowa
+	glLoadIdentity();
+
+	// parametry bryły obcinania
+	if (Aspect == ASPECT_1_1)
+	{
+		// wysokość okna większa od wysokości okna
+		if (w < h && w > 0)
+			glOrtho(-2.0, 2.0, -2.0 * h / w, 2.0 * h / w, -2.0, 2.0);
+		else
+
+			// szerokość okna większa lub równa wysokości okna
+			if (w >= h && h > 0)
+				glOrtho(-2.0 * w / h , 2.0 * w / h, -2.0, 2.0, -2.0, 2.0);
+
+	}
+	else
+		glOrtho(-2.0, 2.0, -2.0, 2.0, -2.0, 2.0);
+
+	// generowanie sceny 3D
+	draw();
+}
+
+void timerFunc(int value) {
+	testWall->Rescale(1);
+	draw();
+	glutTimerFunc(10, timerFunc, value);
+}
+
 int main(int argc, char* argv[])
 {
 	if (!initKinect()) return 1;
 
 	// inicjalizacja biblioteki GLUT
 	glutInit(&argc, argv);
+
+	testWall = new Wall(200, 200, 0, 300, 200, 1, 0, 0);
 
 	// inicjalizacja bufora ramki
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
@@ -280,7 +332,11 @@ int main(int argc, char* argv[])
 
 	glutCreateWindow("Kinect");
 
+	glutTimerFunc(2000, timerFunc, 0);
+
 	glutDisplayFunc(draw);
+
+	glutReshapeFunc(Reshape);
 
 	glutIdleFunc(draw);
 
