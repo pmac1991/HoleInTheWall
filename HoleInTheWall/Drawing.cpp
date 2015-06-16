@@ -7,9 +7,9 @@ void Wall::Draw()
 	
 		glColor3f(colorR, colorG,colorB);
 		glTranslatef(positionX, positionY,positionZ);
-		glScalef(scaleFactorX, scaleFactorY, scaleFactorZ);
+		glScalef(scaleFactorX, scaleFactorY, 0);
 		glBegin(GL_QUADS);
-		
+			
 			glVertex3f(sizeX, 0, 0);
 			glVertex3f(sizeX, sizeY, 0);
 			glVertex3f(0, sizeY, 0);
@@ -20,10 +20,10 @@ void Wall::Draw()
 	glPopMatrix();
 }
 
-void Wall::Rescale(int percent)
+void Wall::Rescale(GLfloat percent)
 {
-	scaleFactorX = (scaleFactorX * percent) / 100;
-	scaleFactorY = (scaleFactorY * percent) / 100;
+	scaleFactorX = scaleFactorX * percent;
+	scaleFactorY = scaleFactorY * percent;
 	//scaleFactorZ = (scaleFactorZ * 100) / percent;
 }
 

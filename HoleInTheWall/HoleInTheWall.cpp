@@ -55,6 +55,8 @@ INuiSensor* sensor;            // The kinect sensor
 
 int iterator = 0;
 
+int mainTime = 0;
+
 struct jointScreenCo{
 	float positionX;
 	float positionY;
@@ -260,7 +262,7 @@ void draw() {
 	// macierz modelowania = macierz jednostkowa
 	glLoadIdentity();
 
-	ProcessSkeleton();
+	//ProcessSkeleton();
 
 	testWall->Draw();
 
@@ -310,19 +312,29 @@ void Reshape(int w, int h)
 }
 
 void timerFunc(int value) {
-	testWall->Rescale(1);
+	if (mainTime < 550)
+	{
+		testWall->Rescale(1.001);
+		mainTime++;
+	}
+	else{
+		
+	}
 	draw();
 	glutTimerFunc(10, timerFunc, value);
 }
 
 int main(int argc, char* argv[])
 {
-	if (!initKinect()) return 1;
+	//if (!initKinect()) return 1;
 
 	// inicjalizacja biblioteki GLUT
 	glutInit(&argc, argv);
 
-	testWall = new Wall(200, 200, 0, 300, 200, 1, 0, 0);
+	testWall = new Wall(50, 50, 0, 300, 200, 1, 0, 0);
+	
+
+
 
 	// inicjalizacja bufora ramki
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
@@ -332,7 +344,7 @@ int main(int argc, char* argv[])
 
 	glutCreateWindow("Kinect");
 
-	glutTimerFunc(2000, timerFunc, 0);
+	glutTimerFunc(10, timerFunc, 0);
 
 	glutDisplayFunc(draw);
 

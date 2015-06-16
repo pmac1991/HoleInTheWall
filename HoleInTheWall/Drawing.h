@@ -31,6 +31,6 @@ public:
 	Wall(GLfloat inX, GLfloat inY, GLfloat inZ, GLfloat sX, GLfloat sY, GLfloat inR, GLfloat inG, GLfloat inB);
 
 	void Draw();
-	void Rescale(int factor);
+	void Rescale(GLfloat factor);
 	void Init();
 };
