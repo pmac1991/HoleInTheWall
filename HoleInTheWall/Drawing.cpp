@@ -27,6 +27,44 @@ void Wall::Rescale(GLfloat percent)
 	//scaleFactorZ = (scaleFactorZ * 100) / percent;
 }
 
+// TODO write it !
+
+bool Wall::checkPosition(jointScreenCo inputCoordinates[], float accuracy)
+{
+	int inputSize = sizeof inputCoordinates / sizeof(*inputCoordinates);
+
+	for (int i = 0; i<16; i++)
+	{
+		if (((skeletonJoints[i].positionX + accuracy) > inputCoordinates[i].positionX) && ((skeletonJoints[i].positionX - accuracy) < inputCoordinates[i].positionX) &&
+			((skeletonJoints[i].positionY + accuracy) > inputCoordinates[i].positionY) && ((skeletonJoints[i].positionY - accuracy) < inputCoordinates[i].positionY))
+		{
+
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+int Wall::countCorrectJointsPosition(jointScreenCo inputCoordinates[], float accuracy)
+{
+	int inputSize = sizeof inputCoordinates / sizeof(*inputCoordinates);
+
+	int numberOfCorrectJoints = 0;
+
+	for (int i = 0; i<16; i++)
+	{
+		if (((skeletonJoints[i].positionX + accuracy) > inputCoordinates[i].positionX) && ((skeletonJoints[i].positionX - accuracy) < inputCoordinates[i].positionX) &&
+			((skeletonJoints[i].positionY + accuracy) > inputCoordinates[i].positionY) && ((skeletonJoints[i].positionY - accuracy) < inputCoordinates[i].positionY))
+		{
+			numberOfCorrectJoints++;
+		}
+	}
+	return numberOfCorrectJoints;
+}
+
 Wall::Wall(GLfloat inX, GLfloat inY, GLfloat inZ, GLfloat sX, GLfloat sY, GLfloat inR, GLfloat inG, GLfloat inB)
 {
 	positionX = inX;

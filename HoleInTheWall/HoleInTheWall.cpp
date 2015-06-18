@@ -38,6 +38,7 @@ enum
 
 int Aspect = FULL_WINDOW;
 
+bool captureFlag = false;
 
 // OpenGL Variables
 
@@ -56,11 +57,6 @@ INuiSensor* sensor;            // The kinect sensor
 int iterator = 0;
 
 int mainTime = 0;
-
-struct jointScreenCo{
-	float positionX;
-	float positionY;
-};
 
 jointScreenCo   m_Points[NUI_SKELETON_POSITION_COUNT];
 
@@ -83,13 +79,13 @@ bool initKinect() {
 
 	// Initialize sensor
 	sensor->NuiInitialize(NUI_INITIALIZE_FLAG_USES_DEPTH | NUI_INITIALIZE_FLAG_USES_SKELETON);
-/*	sensor->NuiImageStreamOpen(
-		NUI_IMAGE_TYPE_COLOR,            // Depth camera or rgb camera?
-		NUI_IMAGE_RESOLUTION_640x480,    // Image resolution
-		0,      // Image stream flags, e.g. near mode
-		2,      // Number of frames to buffer
-		NULL,   // Event handle
-		&rgbStream);*/
+	/*	sensor->NuiImageStreamOpen(
+			NUI_IMAGE_TYPE_COLOR,            // Depth camera or rgb camera?
+			NUI_IMAGE_RESOLUTION_640x480,    // Image resolution
+			0,      // Image stream flags, e.g. near mode
+			2,      // Number of frames to buffer
+			NULL,   // Event handle
+			&rgbStream);*/
 
 	return sensor;
 }
@@ -101,7 +97,8 @@ void DrawBone(const NUI_SKELETON_DATA & skel, NUI_SKELETON_POSITION_INDEX joint0
 	NUI_SKELETON_POSITION_TRACKING_STATE joint0State = skel.eSkeletonPositionTrackingState[joint0];
 	NUI_SKELETON_POSITION_TRACKING_STATE joint1State = skel.eSkeletonPositionTrackingState[joint1];
 
-	std::cout << "Jestem w drawBonr!!";
+
+
 
 	// If we can't find either of these joints, exit
 	if (joint0State == NUI_SKELETON_POSITION_NOT_TRACKED || joint1State == NUI_SKELETON_POSITION_NOT_TRACKED)
@@ -121,29 +118,50 @@ void DrawBone(const NUI_SKELETON_DATA & skel, NUI_SKELETON_POSITION_INDEX joint0
 		jointScreenCo temp0 = m_Points[joint0];
 		jointScreenCo temp1 = m_Points[joint1];
 
+		if (captureFlag)
+		{
+			std::cout << "1: " << joint0;
+			std::cout << "2: " << joint1;
+			std::cout << "X1: " << temp0.positionX;
+			std::cout << "Y1: " << temp0.positionY;
+			std::cout << "X2: " << temp1.positionX;
+			std::cout << "X2: " << temp1.positionY;
+		}
+
 		//m_pRenderTarget->DrawLine(m_Points[joint0], m_Points[joint1], m_pBrushBoneTracked, g_TrackedBoneThickness);
 		glPushMatrix();
 		glTranslatef(sceletonCorrX, sceletonCorrY, 0);
 		glScalef(sceletonScaleX, sceletonScaleY, sceletonCorrZ);
-			glBegin(GL_LINES);
-				glVertex3f(temp0.positionX, temp0.positionY, 0);
-				glVertex3f(temp1.positionX, temp1.positionY, 0);
-			glEnd();
+		glBegin(GL_LINES);
+		glVertex3f(temp0.positionX, temp0.positionY, 0);
+		glVertex3f(temp1.positionX, temp1.positionY, 0);
+		glEnd();
 		glPopMatrix();
-		
+
 	}
 	else
 	{
 		//m_pRenderTarget->DrawLine(m_Points[joint0], m_Points[joint1], m_pBrushBoneInferred, g_InferredBoneThickness);
 		jointScreenCo temp0 = m_Points[joint0];
 		jointScreenCo temp1 = m_Points[joint1];
+
+		if (captureFlag)
+		{
+			std::cout << "1: " << joint0;
+			std::cout << "2: " << joint1;
+			std::cout << "X1: " << temp0.positionX;
+			std::cout << "Y1: " << temp0.positionY;
+			std::cout << "X2: " << temp1.positionX;
+			std::cout << "X2: " << temp1.positionY;
+		}
+
 		glPushMatrix();
 		glTranslatef(sceletonCorrX, sceletonCorrY, 0);
 		glScalef(sceletonScaleX, sceletonScaleY, sceletonCorrZ);
-			glBegin(GL_LINES);
-				glVertex3f(temp0.positionX, temp0.positionY, 0);
-				glVertex3f(temp1.positionX, temp1.positionY, 0);
-			glEnd();
+		glBegin(GL_LINES);
+		glVertex3f(temp0.positionX, temp0.positionY, 0);
+		glVertex3f(temp1.positionX, temp1.positionY, 0);
+		glEnd();
 		glPopMatrix();
 	}
 }
@@ -227,7 +245,7 @@ void ProcessSkeleton(){
 		if (NUI_SKELETON_TRACKED == trackingState)
 		{
 			// We're tracking the skeleton, draw it
-		    DrawSkeleton(skeletonFrame.SkeletonData[i], width, height);
+			DrawSkeleton(skeletonFrame.SkeletonData[i], width, height);
 		}
 		else if (NUI_SKELETON_POSITION_ONLY == trackingState)
 		{
@@ -264,11 +282,13 @@ void draw() {
 
 	//ProcessSkeleton();
 
+	captureFlag = false;
+
 	testWall->Draw();
 
 	glRasterPos2i(15, 20);
 	char text[10];
-	
+
 	sprintf_s(text, "%d", 5);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (unsigned char*)text);
 	// kolor krawêdzi szeœcianu
@@ -301,7 +321,7 @@ void Reshape(int w, int h)
 
 			// szerokość okna większa lub równa wysokości okna
 			if (w >= h && h > 0)
-				glOrtho(-2.0 * w / h , 2.0 * w / h, -2.0, 2.0, -2.0, 2.0);
+				glOrtho(-2.0 * w / h, 2.0 * w / h, -2.0, 2.0, -2.0, 2.0);
 
 	}
 	else
@@ -318,10 +338,26 @@ void timerFunc(int value) {
 		mainTime++;
 	}
 	else{
-		
+
 	}
 	draw();
 	glutTimerFunc(10, timerFunc, value);
+}
+
+void Keyboard(unsigned char key, int x, int y)
+{
+
+	switch (key)
+	{
+		case '+':
+		{
+			captureFlag = true;
+			break;
+		}
+	}
+
+	// odrysowanie okna
+	Reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 }
 
 int main(int argc, char* argv[])
@@ -332,7 +368,7 @@ int main(int argc, char* argv[])
 	glutInit(&argc, argv);
 
 	testWall = new Wall(50, 50, 0, 300, 200, 1, 0, 0);
-	
+
 
 
 
